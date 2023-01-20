@@ -95,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
             data[index]['done'] = !data[index]['done'];
             _box!.putAt(index, data[index]);
           });
-          print('index: $index');
+
         },
         icon: Icon(
           data[index]['done'] ? Icons.check_box : Icons.check_box_outline_blank,
