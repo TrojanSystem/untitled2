@@ -34,7 +34,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late double _width, _height;
   String newTask = '';
+  String updateTask = '';
   Box? _box;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -77,36 +79,73 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _taskList(List<dynamic> data, int index) {
-    return ListTile(
-      title: Text(
-        data[index]['content'],
-        style: TextStyle(
-          decoration: data[index]['done']
-              ? TextDecoration.lineThrough
-              : TextDecoration.none,
-        ),
-      ),
-      subtitle: Text(
-        data[index]['timeStamp'].toString(),
-      ),
-      trailing: IconButton(
-        onPressed: () {
-          setState(() {
-            data[index]['done'] = !data[index]['done'];
-            _box!.putAt(index, data[index]);
-          });
+    return GestureDetector(
+      onDoubleTap: () {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Update Task'),
+                content: Form(
+                  key: _formKey,
+                  child: TextField(
+                    // initialValue: data[index]['content'],
+                    onSubmitted: (_) {
+                      setState(() {
+                        final updateModel = TaskModel(
+                            content: updateTask,
+                            done: data[index]['done'],
+                            timeStamp: data[index]['timeStamp']);
 
-        },
-        icon: Icon(
-          data[index]['done'] ? Icons.check_box : Icons.check_box_outline_blank,
-          color: Colors.red,
-        ),
-      ),
-      onLongPress: () {
-        setState(() {
-          _box!.deleteAt(index);
-        });
+                          _box!.putAt(index, {'content':updateTask,'done': data[index]['done'],
+                            'timeStamp': data[index]['timeStamp']});
+
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    onChanged: (task) {
+                      setState(() {
+                        updateTask = task;
+                      });
+                    },
+                  ),
+                ),
+
+              );
+            });
       },
+      child: ListTile(
+        title: Text(
+          data[index]['content'],
+          style: TextStyle(
+            decoration: data[index]['done']
+                ? TextDecoration.lineThrough
+                : TextDecoration.none,
+          ),
+        ),
+        subtitle: Text(
+          data[index]['timeStamp'].toString(),
+        ),
+        trailing: IconButton(
+          onPressed: () {
+            setState(() {
+              data[index]['done'] = !data[index]['done'];
+              _box!.putAt(index, data[index]);
+            });
+          },
+          icon: Icon(
+            data[index]['done']
+                ? Icons.check_box
+                : Icons.check_box_outline_blank,
+            color: Colors.red,
+          ),
+        ),
+        onLongPress: () {
+          setState(() {
+            _box!.deleteAt(index);
+          });
+        },
+      ),
     );
   }
 
